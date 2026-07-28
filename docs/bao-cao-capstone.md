@@ -12,7 +12,7 @@ StockLite la web app quan ly san pham va ton kho. Nguoi dung co the tao, xem, su
 
 ## 2. Kien truc he thong
 
-Client React sau khi build duoc Nginx phuc vu qua HTTPS. Nginx proxy cac request `/api` vao Express API chi nghe tren `127.0.0.1:5002`. API dung PostgreSQL voi user rieng va database chi nghe localhost. PM2 quan ly tien trinh `stocklite-api`.
+Client React sau khi build duoc Nginx phuc vu qua HTTPS. Nginx proxy cac request `/api` vao Express API nghe tren `127.0.0.1:5002` va Docker bridge noi bo cho Prometheus scrape metrics. API dung PostgreSQL voi user rieng va database chi nghe localhost. PM2 quan ly tien trinh `stocklite-api`.
 
 Prometheus scrape metrics cua Node Exporter va endpoint `/metrics` cua API. Grafana hien thi suc khoe VPS va metrics request/latency. Alertmanager gui canh bao Telegram khi API chet, CPU cao keo dai hoac dung luong dia sap day.
 

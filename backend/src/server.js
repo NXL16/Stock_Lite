@@ -149,10 +149,15 @@ app.use((error, _req, res, _next) => {
 });
 
 const port = Number(process.env.PORT || 5002);
+const listenHosts = (process.env.LISTEN_HOSTS || '127.0.0.1')
+    .split(',')
+    .map((host) => host.trim())
+    .filter(Boolean);
 
-if (require.main === module)
-    app.listen(port, '127.0.0.1', () =>
-        console.log(`StockLite API running at http://127.0.0.1:${port}`)
-    );
+if (require.main === module) {
+    listenHosts.forEach((host) => app.listen(port, host, () =>
+        console.log(`StockLite API listening at http://${host}:${port}`)
+    ));
+}
 
 module.exports = { app };

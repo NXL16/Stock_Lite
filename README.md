@@ -70,7 +70,7 @@ npm run dev
 
 VPS cần có Node.js 20, PostgreSQL, Nginx va PM2. Tạo database/user riêng cho app, lưu `DATABASE_URL` trong `/var/www/stocklite/backend/.env`, file này không nằm trong Git.
 
-Nginx serve `frontend/dist`, proxy `/api` vao `http://127.0.0.1:5002`. PM2 chạy `deploy/ecosystem.config.cjs` va phai duoc bat startup sau reboot.
+Nginx serve `frontend/dist`, proxy `/api` vao `http://127.0.0.1:5002`. Production `.env` dat `LISTEN_HOSTS=127.0.0.1,<docker-bridge-ip>` de Prometheus trong Docker scrape `/metrics`; ca hai dia chi deu la noi bo, khong phai public IP. PM2 chạy `deploy/ecosystem.config.cjs` va phai duoc bat startup sau reboot.
 
 CI chạy tren moi push/PR vao `main`: unit test backend va build React. Chi khi CI xanh, workflow CD moi SSH vao VPS, cap nhat source, build, `pm2 startOrReload`, reload Nginx va health check `/api/health`.
 
