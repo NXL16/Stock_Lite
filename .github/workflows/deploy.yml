@@ -35,7 +35,7 @@ jobs:
             pm2 save
             nginx -t
             systemctl reload nginx
-            curl -fsS --retry 5 http://127.0.0.1:5002/api/health
+            curl -fsS --retry 10 --retry-delay 2 --retry-connrefused http://127.0.0.1:5002/api/health
 
       - name: Telegram — deployment succeeded
         if: success()
