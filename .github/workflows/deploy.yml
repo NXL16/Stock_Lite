@@ -43,7 +43,7 @@ jobs:
         run: |
           curl -fsS -X POST "https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage" \
             -d chat_id="${{ secrets.TELEGRAM_CHAT_ID }}" \
-            --data-urlencode text="✅ StockLite deployed successfully — commit ${{ github.event.workflow_run.head_sha }}"
+            --data-urlencode text="✅ StockLite deployed successfully — pushed by ${{ github.event.workflow_run.actor.login }} — commit: ${{ github.event.workflow_run.head_commit.message }} — log: ${{ github.event.workflow_run.html_url }}"
 
       - name: Telegram — deployment failed
         if: failure()
@@ -51,4 +51,4 @@ jobs:
         run: |
           curl -fsS -X POST "https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage" \
             -d chat_id="${{ secrets.TELEGRAM_CHAT_ID }}" \
-            --data-urlencode text="❌ StockLite deployment failed — check GitHub Actions"
+            --data-urlencode text="❌ StockLite deployment failed — pushed by ${{ github.event.workflow_run.actor.login }} — commit: ${{ github.event.workflow_run.head_commit.message }} — log: ${{ github.event.workflow_run.html_url }}"

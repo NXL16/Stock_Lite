@@ -151,7 +151,7 @@ app.use((error, _req, res, _next) => {
 const port = Number(process.env.PORT || 5002);
 
 if (require.main === module)
-    app.listen(port, () =>
+    app.listen(port, '127.0.0.1', () =>
         console.log(`StockLite API running at http://127.0.0.1:${port}`)
     );
 

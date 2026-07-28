@@ -1,0 +1,29 @@
+groups:
+  - name: stocklite-alerts
+    rules:
+      - alert: StockLiteAPIDown
+        expr: up{job="stocklite-api"} == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "🔴 StockLite API không phản hồi"
+          description: "Endpoint /metrics của StockLite đã chết hơn 1 phút. Kiểm tra: pm2 status và pm2 logs stocklite-api."
+
+      - alert: HighCPU
+        expr: 100 - (avg by(instance) (rate(node_cpu_seconds_total{job="node-exporter",mode="idle"}[5m])) * 100) > 80
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "🟠 CPU VPS cao kéo dài"
+          description: "CPU vượt 80% trong 5 phút. Kiểm tra: top, pm2 monit và docker stats."
+
+      - alert: DiskAlmostFull
+        expr: (node_filesystem_avail_bytes{job="node-exporter",fstype!~"tmpfs|overlay|squashfs"} / node_filesystem_size_bytes{job="node-exporter",fstype!~"tmpfs|overlay|squashfs"}) * 100 < 15
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "🟠 Ổ đĩa VPS sắp đầy"
+          description: "Dung lượng trống dưới 15% trong 5 phút. Kiểm tra: df -h và docker system df."

@@ -37,3 +37,16 @@ jobs:
       - name: Build frontend
         working-directory: frontend
         run: timeout 3m npx vite build
+
+  notify-ci-failure:
+    name: Telegram — CI failed
+    needs: test-and-build
+    if: ${{ failure() }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send failure notification
+        continue-on-error: true
+        run: |
+          curl -fsS -X POST "https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage" \
+            -d chat_id="${{ secrets.TELEGRAM_CHAT_ID }}" \
+            --data-urlencode text="❌ StockLite CI failed — pushed by ${{ github.actor }} — commit: ${{ github.event.head_commit.message }} — log: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
