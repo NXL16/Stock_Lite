@@ -1,0 +1,54 @@
+name: Deploy to VPS
+
+on:
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
+    branches: [main]
+
+jobs:
+  deploy:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy application
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          port: ${{ secrets.VPS_PORT }}
+          username: ${{ secrets.VPS_USER }}
+          password: ${{ secrets.VPS_PASSWORD }}
+          script: |
+            set -e
+            APP_DIR=/var/www/stocklite
+            if [ ! -d "$APP_DIR/.git" ]; then
+              git clone https://github.com/NXL16/Stock_Lite.git "$APP_DIR"
+            else
+              git -C "$APP_DIR" pull --ff-only origin main
+            fi
+            cd "$APP_DIR/backend"
+            npm ci --omit=dev
+            cd "$APP_DIR/frontend"
+            npm ci
+            npm run build
+            pm2 startOrReload "$APP_DIR/deploy/ecosystem.config.cjs" --env production
+            pm2 save
+            nginx -t
+            systemctl reload nginx
+            curl -fsS --retry 5 http://127.0.0.1:5002/api/health
+
+      - name: Telegram — deployment succeeded
+        if: success()
+        continue-on-error: true
+        run: |
+          curl -fsS -X POST "https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage" \
+            -d chat_id="${{ secrets.TELEGRAM_CHAT_ID }}" \
+            --data-urlencode text="✅ StockLite deployed successfully — commit ${{ github.event.workflow_run.head_sha }}"
+
+      - name: Telegram — deployment failed
+        if: failure()
+        continue-on-error: true
+        run: |
+          curl -fsS -X POST "https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage" \
+            -d chat_id="${{ secrets.TELEGRAM_CHAT_ID }}" \
+            --data-urlencode text="❌ StockLite deployment failed — check GitHub Actions"
