@@ -49,7 +49,7 @@ monitoring/              Docker Compose, Prometheus, alert rules, Alertmanager t
 docker compose --env-file compose.env -f compose.yml up -d
 ```
 
-2. Tạo `backend/.env` từu `backend/.env.example`, sau đó cài và chạy API:
+2. Tạo `backend/.env` từ `backend/.env.example`, sau đó cài và chạy API:
 
 ```bash
 cd backend
@@ -68,28 +68,28 @@ npm run dev
 
 ## Deploy VPS
 
-VPS cần có Node.js 20, PostgreSQL, Nginx va PM2. Tạo database/user riêng cho app, lưu `DATABASE_URL` trong `/var/www/stocklite/backend/.env`, file này không nằm trong Git.
+VPS cần có Node.js 20, PostgreSQL, Nginx và PM2. Tạo database/user riêng cho app, lưu `DATABASE_URL` trong `/var/www/stocklite/backend/.env`, file này không nằm trong Git.
 
-Nginx serve `frontend/dist`, proxy `/api` vao `http://127.0.0.1:5002`. Production `.env` dat `LISTEN_HOSTS=127.0.0.1,<docker-bridge-ip>` de Prometheus trong Docker scrape `/metrics`; ca hai dia chi deu la noi bo, khong phai public IP. PM2 chạy `deploy/ecosystem.config.cjs` va phai duoc bat startup sau reboot.
+Nginx serve `frontend/dist`, proxy `/api` vào `http://127.0.0.1:5002`. Trên VPS hiện tại, production `.env` đặt `LISTEN_HOSTS=127.0.0.1,172.18.0.1` để Prometheus trong Docker scrape `/metrics`; cả 2 địa chỉ đều là nội bộ, không phải public IP. PM2 chạy `deploy/ecosystem.config.cjs` và phải được bật startup sau reboot.
 
-CI chạy tren moi push/PR vao `main`: unit test backend va build React. Chi khi CI xanh, workflow CD moi SSH vao VPS, cap nhat source, build, `pm2 startOrReload`, reload Nginx va health check `/api/health`.
+CI chạy trên mỗi push/PR vào `main`: unit test backend và build React. Chỉ khi CI xanh, workflow CD mới SSH vào VPS, cập nhật source, build, `pm2 startOrReload`, reload Nginx và health check `/api/health`.
 
-## Monitoring va Alert
+## Monitoring và Alert
 
-Thu muc `monitoring/` la cau hinh co the dung lai:
+Thư mục `monitoring/` là cấu hình có thể tái sử dụng lại:
 
-1. Tao `monitoring/.env` tu `.env.example` va dat `GRAFANA_ADMIN_PASSWORD`.
-2. Copy `monitoring/alertmanager/alertmanager.yml.example` thanh `alertmanager.yml`, thay 2 gia tri Telegram. File that bi `.gitignore` de khong lo token.
+1. Tạo `monitoring/.env` từ `.env.example` và đặt `GRAFANA_ADMIN_PASSWORD`.
+2. Copy `monitoring/alertmanager/alertmanager.yml.example` thanh `alertmanager.yml`, thay 2 giá trị Telegram. File thật bị `.gitignore` để không lộ token.
 3. Chay `docker compose -f monitoring/docker-compose.yml up -d`.
-4. Grafana chi bind `127.0.0.1:3001`; Nginx proxy domain HTTPS `grafana.404hz.me` vao port nay.
+4. Grafana chỉ bind `127.0.0.1:3001`; Nginx proxy domain HTTPS `grafana.404hz.me` vào port này.
 
 Ba rule Alertmanager:
 
-- `StockLiteAPIDown`: app chet tren 1 phut.
-- `HighCPU`: CPU > 80% trong 5 phut.
-- `DiskAlmostFull`: dung luong trong < 15% trong 5 phut.
+- `StockLiteAPIDown`: app chết trên 1 phút.
+- `HighCPU`: CPU > 80% trong 5 phút.
+- `DiskAlmostFull`: dung lượng trong < 15% trong 5 phút.
 
-Tat ca deu gui Telegram actionable va co `send_resolved: true`.
+Tất cả đều gửi Telegram actionable và có `send_resolved: true`.
 
 ## Runbook
 
