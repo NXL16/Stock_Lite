@@ -93,21 +93,21 @@ Tất cả đều gửi Telegram actionable và có `send_resolved: true`.
 
 ## Runbook
 
-| Alert | Kiem tra dau tien | Lenh xu ly |
+| Alert | Kiểm tra đầu tiên | Lệnh xử lý |
 |---|---|---|
 | StockLiteAPIDown | PM2/API | `pm2 status`, `pm2 logs stocklite-api`, `pm2 restart stocklite-api` |
 | HighCPU | process/container | `top`, `pm2 monit`, `docker stats` |
 | DiskAlmostFull | filesystem/Docker | `df -h`, `docker system df` |
 
-## Bao mat
+## Bảo mật
 
-- Khong commit `.env`, token Telegram, mat khau VPS/DB hay private key.
-- API, PostgreSQL, Prometheus, Alertmanager, Grafana chi bind localhost; public access di qua Nginx HTTPS.
-- GitHub Secrets can co: `VPS_HOST`, `VPS_PORT`, `VPS_USER`, `VPS_PASSWORD`, `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID`.
+- Không commit `.env`, token Telegram, mật khẩu VPS/DB hay private key.
+- API, PostgreSQL, Prometheus, Alertmanager, Grafana chỉ bind localhost, public access đi qua Nginx HTTPS.
+- GitHub Secrets cần có: `VPS_HOST`, `VPS_PORT`, `VPS_USER`, `VPS_PASSWORD`, `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID`.
 
-## Kich ban demo
+## Kịch bản demo
 
-1. CRUD tren `https://stocklite.404hz.me`.
-2. Sua mot dong giao dien -> push -> CI xanh -> CD xanh -> Telegram thanh cong -> web cap nhat.
-3. Lam hong mot assertion trong `backend/test/stock.test.js` -> push -> CI do -> Telegram that bai -> web giu ban cu -> sua lai va push xanh.
-4. `pm2 stop stocklite-api` -> doi alert FIRING -> `pm2 start stocklite-api` -> doi RESOLVED.
+1. CRUD trên `https://stocklite.404hz.me`.
+2. Sửa một dòng giao diện -> push -> CI xanh -> CD xanh -> Telegram thành công -> web cập nhật
+3. Làm hỏng một assertion trong `backend/test/stock.test.js` -> push -> CI đỏ -> Telegram thất bại -> web giữ bản cũ -> sửa lại và push xanh.
+4. `pm2 stop stocklite-api` -> đổi alert FIRING -> `pm2 start stocklite-api` -> đổi RESOLVED.
