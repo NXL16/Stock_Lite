@@ -24,5 +24,5 @@ test('rejects invalid quantity', () => assert.match(validateProduct({
 test('prevents negative stock', () => assert.match(validateMovement({
     type: 'OUT',
     quantity: 6
-}, 5).error, /vượt/));
+}, 5).error, /không âm/));
 
